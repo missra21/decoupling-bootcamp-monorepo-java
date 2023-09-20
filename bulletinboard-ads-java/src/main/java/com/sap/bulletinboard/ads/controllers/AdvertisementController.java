@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.sap.bulletinboard.ads.models.AverageRatingRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 
@@ -51,10 +52,12 @@ public class AdvertisementController {
     @Value("${REVIEWS_HOST:#{null}}")
     private String reviewsServiceHost;
 
+    private final AverageRatingRepository averageRatingRepository;
     private final AdvertisementRepository repository;
     private final ReviewsServiceClient reviewsServiceClient;
 
-    public AdvertisementController(AdvertisementRepository repository, ReviewsServiceClient reviewsServiceClient) {
+    public AdvertisementController(AverageRatingRepository averageRatingRepository, AdvertisementRepository repository, ReviewsServiceClient reviewsServiceClient) {
+        this.averageRatingRepository = averageRatingRepository;
         this.repository = repository;
         this.reviewsServiceClient = reviewsServiceClient;
     }
@@ -131,7 +134,8 @@ public class AdvertisementController {
         dto.id = ad.getId();
         dto.title = ad.getTitle();
         dto.contact = ad.getContact();
-        Double averageRating = reviewsServiceClient.getAverageRating(dto.contact);
+//        Double averageRating = reviewsServiceClient.getAverageRating(dto.contact);
+        Double averageRating = (Double) averageRatingRepository.getAvgRatingByRevieweeEmail(dto.contact);
         if (averageRating == null) {
             averageRating = 1d;
             logger.info("User does not have a rating yet, defaulting to 1 (=untrusted)");

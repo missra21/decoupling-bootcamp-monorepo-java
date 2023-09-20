@@ -1,5 +1,7 @@
 package com.sap.bulletinboard.reviews.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ReviewDto {
     private String revieweeEmail;
     private String reviewerEmail;

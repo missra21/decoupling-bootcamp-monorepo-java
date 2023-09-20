@@ -118,7 +118,8 @@ public class BulletinboardReviewApplicationTest {
                 "    \"comment\": \"review for john\"" +
                 "}");
 
-        JSONAssert.assertEquals("{\"averageRating\": 2.5}", getRating("john.doe@some.org"), true);
+        JSONAssert.assertEquals("{\"averageRating\": 2.5, "+
+                "    \"revieweeEmail\": \"john.doe@some.org\" }", getRating("john.doe@some.org"), true);
     }
 
     private void then_I_will_get_reviews(String expectedJson) throws JSONException {

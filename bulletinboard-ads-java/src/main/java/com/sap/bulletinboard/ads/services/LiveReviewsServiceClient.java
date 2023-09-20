@@ -1,6 +1,9 @@
 package com.sap.bulletinboard.ads.services;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -29,7 +32,7 @@ public class LiveReviewsServiceClient implements ReviewsServiceClient {
     public Double getAverageRating(String userEmail) {
 	String url = determineHost() + "/" + API_PATH + "/averageRatings/" + userEmail;
 
-	AverageRating review = webClient.get().uri(url).retrieve().bodyToMono(AverageRating.class).block();
-	return review.getAverageRating();
+        AverageRatingService response = webClient.get().uri(url).retrieve().bodyToMono(AverageRatingService.class).block();
+	return response.getAverageRating();
     }
 }

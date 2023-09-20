@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.sap.bulletinboard.reviews.controller.dto.AverageRatingDto;
 import com.sap.bulletinboard.reviews.controller.dto.ReviewDto;
 import com.sap.bulletinboard.reviews.models.Review;
+import com.sap.bulletinboard.reviews.queue.QueueProducer;
 import com.sap.bulletinboard.reviews.repository.ReviewRepository;
 
 import org.slf4j.Logger;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class BulletinboardReviewController {
     @Autowired
     ReviewRepository repository;
+    @Autowired
+    QueueProducer queueProducer;
 
     private Logger logger = LoggerFactory.getLogger(getClass());
     
@@ -48,6 +51,11 @@ public class BulletinboardReviewController {
         URI location = URI.create("reviews:" + review.getId());
         if (!repository.existsById(review.getId())) {
             repository.save(review);
+            try {
+                queueProducer.produce(getAllReviews(review.getId().getRevieweeEmail()));
+            } catch (Exception e) {
+                logger.error("Error occured while producing message, due to: {}", e.getMessage());
+            }
             return ResponseEntity.created(location).build();
         } else {
             return ResponseEntity.status(HttpStatus.CONFLICT).location(location).build();
@@ -66,7 +74,7 @@ public class BulletinboardReviewController {
         if (averageRating == null) {
             logger.info("No ratings found for {}", reviewee);
         }
-        return new AverageRatingDto(averageRating);
+        return new AverageRatingDto(averageRating, reviewee);
     }
 
     private ReviewDto entityToDto(Review review) {
